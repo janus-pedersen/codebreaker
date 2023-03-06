@@ -6,7 +6,7 @@ import { SystemDirectory } from "../SystemDirectory";
 export const mkdir = new Command("mkdir")
   .setDescription("Creates a new directory")
 	.addInput(new StringInput("name", "The name of the directory", true))
-	.setCategory("Files")
+	.setCategory("Filesystem")
   .onExec((system, name) => {
     if (name === undefined) throw new Error("Invalid name");
     if (name.match(/[^a-zA-Z0-9_\- ]/)) throw new Error("Invalid name");

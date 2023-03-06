@@ -17,7 +17,7 @@ export class CommandManager {
     return this.commands.find((command) => command.name === name);
   }
 
-  handleCommand(i: string, system: System) {
+  async handleCommand(i: string, system: System) {
     const terminal = system.terminal;
     if (!i) {
       terminal.basic("");
@@ -26,7 +26,9 @@ export class CommandManager {
 
     if (terminal.shouldIgnore()) {
       return;
-    }
+		}
+		
+		terminal.commandHistory.push(i);
 
     terminal.info(i, true);
 
@@ -47,9 +49,14 @@ export class CommandManager {
       return;
     }
 
+    if (command.requiresRoot && !system.user.hasRoot) {
+      terminal.error("You need to be root to run this command", false);
+      return;
+    }
+
     try {
       const parsedArgs = command?.parseArgs(args!);
-      (command?.exec as any)(terminal.system, ...(parsedArgs || []));
+      await (command?.exec as any)(terminal.system, ...(parsedArgs || []));
     } catch (e) {
       terminal.error((e as any).message, false);
     }

@@ -1,16 +1,21 @@
+import { Firewall } from "./Firewall";
 import { SystemFile } from "./SystemFile";
 import { CommandManager } from "./CommandManager";
 import { Terminal } from "./Terminal";
 import "./commands";
 import { SystemUser } from "./SystemUser";
 import { SystemDirectory } from "./SystemDirectory";
+import { randomIp } from "../utils/random";
 
 export class System {
   public terminal: Terminal = new Terminal(this);
   public commandManager: CommandManager;
-  public user = new SystemUser("admin");
+  public user = new SystemUser("admin").addRoot();
+  public users = [this.user];
   public files = new SystemDirectory("");
   public currentDirectory = "";
+  public ip = randomIp();
+  public firewall = new Firewall();
 
   constructor(public name: string) {
     this.commandManager = new CommandManager(); // just for TS
@@ -32,6 +37,20 @@ export class System {
 
     for (const command of commandManager.commands) {
       bin.addFile(new SystemFile(command.name, command.description));
+    }
+  }
+
+  async setUser(user: SystemUser) {
+
+    if (user.name === this.user.name) {
+      throw Error("Already logged in as that user");
+    }
+
+    if (await user.login(this)) {
+      this.terminal.success(`Logged in as ${user.name}`);
+      this.user = user;
+    } else {
+      throw Error("Incorrect authentication");
     }
   }
 
@@ -70,5 +89,11 @@ export class System {
     }
 
     return currentDirectory;
+  }
+
+  getFile(path: string) {
+    const directory = this.getDirectory(this.currentDirectory);
+    if (!directory) return null;
+    return directory.files.find((file) => file.name === path) as SystemFile;
   }
 }

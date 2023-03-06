@@ -4,7 +4,7 @@ import { CommandManager } from "../CommandManager";
 
 export const ls = new Command("ls")
 	.setDescription("Lists all files in the current directory")
-	.setCategory("Files")
+	.setCategory("Filesystem")
   .onExec((system) => {
     const files = system.getDirectory(system.currentDirectory)?.files;
     if (!files) return system.terminal.error("No files found");

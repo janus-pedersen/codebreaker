@@ -18,11 +18,12 @@ export default function TerminalComponent({
   terminal: Terminal;
 }) {
   const forceUpdate = useForceUpdate();
+  const renderHistory = 50;
 
   useEffect(() => {
     (async () => {
-      terminal.on('input', (i) => {
-        terminal.system.commandManager.handleCommand(i, terminal.system);
+      terminal.on('input', async (i) => {
+        await terminal.system.commandManager.handleCommand(i, terminal.system);
 
         terminal.emit('render');
       });
@@ -32,8 +33,8 @@ export default function TerminalComponent({
         forceUpdate();
       });
     })();
+    terminal.emit('setup');
     terminal.updatePrompt();
-    terminal.clear();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -46,9 +47,14 @@ export default function TerminalComponent({
       onInput={(input) => {
         terminal.handleInput(input);
       }}>
-      {terminal.history.map((t, i) => (
-        <TerminalOutput key={i}>{t}</TerminalOutput>
-      ))}
+      {terminal.history
+        .slice(
+          Math.max(terminal.history.length - renderHistory, 0),
+          terminal.history.length,
+        )
+        .map((t, i) => (
+          <TerminalOutput key={i}>{t}</TerminalOutput>
+        ))}
     </TerminalUi>
   );
 }

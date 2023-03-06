@@ -2,6 +2,7 @@ import { CommandInput } from "./classes/inputs";
 import { System } from "./classes/System";
 
 export type Pin = `${number}`;
+export type Ip = `${number}.${number}.${number}.${number}`;
 
 export type CommandInputs = CommandInput<any>[];
 export type CommandExecArgs<T extends CommandInputs> = {

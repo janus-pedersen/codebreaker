@@ -4,19 +4,25 @@ import { System } from "./System";
 
 export interface TerminalEvents {
   input: (input: string) => void;
+  setup: () => void;
   render: () => void;
 }
 
 export class Terminal {
   public readonly history: TerminalOutput[] = [];
-  public prompt: string = ">";
+  public commandHistory: string[] = [];
+  public prompt: string = "";
   public readonly system: System;
   private ignoreNextN = 0;
 
   private listeners: Map<keyof TerminalEvents, Function[]> = new Map();
 
   public constructor(system: System) {
-		this.system = system;
+    this.system = system;
+
+    this.on("setup", () => {
+      this.clear();
+    });
   }
 
   public on<K extends keyof TerminalEvents>(
@@ -71,6 +77,12 @@ export class Terminal {
     });
   }
 
+  public blank(n: number = 1) {
+    for (let i = 0; i < n; i++) {
+      this.basic(" ", false);
+    }
+  }
+
   public basic(message: string, withPrompt = true) {
     this.pushColored("white", message, withPrompt);
   }
@@ -93,7 +105,18 @@ export class Terminal {
     withPrompt = true
   ) {
     this.pushHistory(
-			createElement("span", { style }, withPrompt ? createElement('span', {style: {color: '#a2a2a2'}}, this.prompt + ' ') : undefined,  message) as any,
+      createElement(
+        "span",
+        { style },
+        withPrompt
+          ? createElement(
+              "span",
+              { style: { color: "#a2a2a2" } },
+              this.prompt + " "
+            )
+          : undefined,
+        message
+      ) as any,
       withPrompt
     );
   }
@@ -147,15 +170,25 @@ export class Terminal {
         resolve(input);
       });
     });
-	}
-	
-	public clear() {
-		this.history.length = 0;
-		this.emit("render");
-	}
+  }
 
-	public updatePrompt() {
-		this.prompt = this.system.user.name + "@" + this.system.currentDirectory + " $";
+  public clear() {
+    this.history.length = 0;
+    this.info(`Your ip is: ${this.system.ip}`, false);
+    this.basic(
+      "Your system is ready. Type 'help' for a list of commands. \n",
+      false
+    );
+    this.blank();
+    this.emit("render");
+  }
+
+  public updatePrompt() {
+    this.prompt =
+      this.system.user.name +
+      "@" +
+      (this.system.currentDirectory || "/") +
+      " $";
   }
 
   public handleInput(input: string) {
