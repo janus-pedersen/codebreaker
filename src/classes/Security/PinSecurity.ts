@@ -1,6 +1,6 @@
 import { Pin } from "../../types";
 import { System } from "../System";
-import { SecurityMeasure } from "./SecurityMeasure";
+import { SecurityMeasure } from "../SecurityMeasure";
 
 export class PinSecurity extends SecurityMeasure {
   private pin: Pin = "0000";

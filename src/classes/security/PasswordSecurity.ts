@@ -1,5 +1,5 @@
 import { System } from "../System";
-import { SecurityMeasure } from "./SecurityMeasure";
+import { SecurityMeasure } from "../SecurityMeasure";
 
 export class PasswordSecurity extends SecurityMeasure {
   private pass: string = "password";

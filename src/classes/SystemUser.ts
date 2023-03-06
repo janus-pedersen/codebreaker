@@ -1,4 +1,4 @@
-import { SecurityMeasure } from "./security/SecurityMeasure";
+import { SecurityMeasure } from "./SecurityMeasure";
 import { System } from "./System";
 
 export class SystemUser {
