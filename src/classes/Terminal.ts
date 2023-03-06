@@ -21,6 +21,7 @@ export class Terminal {
     this.system = system;
 
     this.on("setup", () => {
+      this.updatePrompt();
       this.clear();
     });
   }
@@ -84,19 +85,19 @@ export class Terminal {
   }
 
   public basic(message: string, withPrompt = true) {
-    this.pushColored("white", message, withPrompt);
+    this.pushColored("lightgray", message, withPrompt);
   }
 
   public info(message: string, withPrompt = true) {
-    this.pushColored("teal", message, withPrompt);
+    this.pushColored("LightSeaGreen", message, withPrompt);
   }
 
   public error(message: string, withPrompt = true) {
-    this.pushColored("red", message, withPrompt);
+    this.pushColored("Tomato", message, withPrompt);
   }
 
   public success(message: string, withPrompt = true) {
-    this.pushColored("green", message, withPrompt);
+    this.pushColored("SeaGreen", message, withPrompt);
   }
 
   public pushStyled(

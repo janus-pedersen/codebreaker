@@ -10,7 +10,7 @@ export const cat = new Command("cat")
 		if(!file) throw new Error("No file specified");
     const fileObj = system.getFile(file);
     if (!fileObj) return system.terminal.error("No file found with that name");
-    system.terminal.basic(fileObj.read(), false);
+    system.terminal.basic(fileObj.read(system.user), false);
   });
 
 	CommandManager.addDefaultCommand(cat);

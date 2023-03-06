@@ -11,7 +11,7 @@ export class PinSecurity extends SecurityMeasure {
 	}
 	
 	public async tryPass(system: System) {
-		const pin = await system.terminal.ask('Enter PIN:')
+		const pin = await system.terminal.ask('Enter pin:')
 		return pin === this.pin
 	}
 }

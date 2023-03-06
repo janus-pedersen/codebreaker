@@ -1,16 +1,11 @@
 import { Terminal } from './classes/Terminal';
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import {
   ColorMode,
   TerminalOutput,
   default as TerminalUi,
 } from 'react-terminal-ui';
-
-function useForceUpdate() {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [_, setValue] = useState(0); // integer state
-  return () => setValue((value) => value + 1); // update the state to force render
-}
+import { useForceUpdate } from './utils/forceUpdate';
 
 export default function TerminalComponent({
   terminal,
@@ -21,22 +16,31 @@ export default function TerminalComponent({
   const renderHistory = 50;
 
   useEffect(() => {
+    const onInput = async (i: string) => {
+      await terminal.system.commandManager.handleCommand(i, terminal.system);
+
+      terminal.emit('render');
+    };
+
+    const onRender = () => {
+      forceUpdate();
+      terminal.updatePrompt();
+      const item = document.getElementsByClassName('react-terminal').item(0);
+      item?.scrollTo(0, item.scrollHeight);
+    };
     (async () => {
-      terminal.on('input', async (i) => {
-        await terminal.system.commandManager.handleCommand(i, terminal.system);
-
-        terminal.emit('render');
-      });
-
-      terminal.on('render', () => {
-        terminal.updatePrompt();
-        forceUpdate();
-      });
+      terminal.on('input', onInput);
+      terminal.on('render', onRender);
     })();
     terminal.emit('setup');
     terminal.updatePrompt();
+
+    return () => {
+      terminal.off('input', onInput);
+      terminal.off('render', onRender);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [terminal]);
 
   return (
     <TerminalUi

@@ -5,23 +5,39 @@ import { Terminal } from "./Terminal";
 import "./commands";
 import { SystemUser } from "./SystemUser";
 import { SystemDirectory } from "./SystemDirectory";
-import { randomIp } from "../utils/random";
+import { randomBusinessName, randomIp, randomString } from "../utils/random";
+import { Network } from "./Network";
+import { PasswordSecurity } from "./security/PasswordSecurity";
 
 export class System {
   public terminal: Terminal = new Terminal(this);
   public commandManager: CommandManager;
-  public user = new SystemUser("admin").addRoot();
+  public user = new SystemUser("root").addRoot();
   public users = [this.user];
   public files = new SystemDirectory("");
   public currentDirectory = "";
   public ip = randomIp();
   public firewall = new Firewall();
+  public network?: Network;
 
   constructor(public name: string) {
     this.commandManager = new CommandManager(); // just for TS
     this.setCommandManager(new CommandManager());
 
+    this.terminal.emit("setup");
+
     this.files.addFile(new SystemFile("README.md", `# ${name}`));
+  }
+
+  static random() {
+    const sys = new System(randomBusinessName());
+    const guest = new SystemUser("guest");
+    const pass = randomString(8)
+    sys.user.addSecurity(new PasswordSecurity(pass))
+    sys.users.push(guest);
+    sys.setUser(guest);
+    sys.files.addFile(new SystemFile("root-password.txt", "Password: \n" + pass));
+    return sys;
   }
 
   setCommandManager(commandManager: CommandManager) {
@@ -41,7 +57,6 @@ export class System {
   }
 
   async setUser(user: SystemUser) {
-
     if (user.name === this.user.name) {
       throw Error("Already logged in as that user");
     }

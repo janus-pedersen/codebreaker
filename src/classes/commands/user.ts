@@ -18,11 +18,9 @@ export const user = new Command("user")
         }`;
         if (user.name === system.user.name) {
           system.terminal.info(l, false);
-        } else if (user.hasRoot) {
-          system.terminal.success(l, false);
-				} else {
-					system.terminal.basic(l, false);
-				}
+        } else  {
+          system.terminal.basic(l, false);
+				} 
       }
       return;
     }

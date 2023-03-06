@@ -1,7 +1,7 @@
 import { SystemFile } from "./SystemFile";
 
 export class SystemDirectory {
-	constructor(public name: string, public files: (SystemFile | SystemDirectory)[] = []) {}
+	constructor(public name: string, public files: (SystemFile | SystemDirectory)[] = []) { }
 
 	addFile(file: SystemFile | SystemDirectory) {
 		this.files.push(file);

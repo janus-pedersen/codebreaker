@@ -1,3 +1,4 @@
+import { PORTS } from "./../../utils/ports";
 import { CommandManager } from "./../CommandManager";
 import { Command } from "../Command";
 import { NumberInput } from "../inputs/NumberInput";
@@ -6,8 +7,8 @@ import { FirewallRule } from "../Firewall";
 import { Ip } from "../../types";
 
 export const firewall = new Command("firewall")
-	.setCategory("Security")
-	.setRoot()
+  .setCategory("Security")
+  .setRoot()
   .setDescription("See and manage the firewall of the current system")
   .addInput(
     new StringInput("action", "The action to perform (allow/deny)", false)
@@ -30,10 +31,16 @@ export const firewall = new Command("firewall")
         a.action === "deny" ? 1 : -1
       );
 
+
+      system.terminal.basic("Port\t\t Action\t Type\t\t IP", false);
+
       for (const rule of rules) {
-        const l = `${rule.port}:\t ${rule.action}\t ${rule.type}\t ${
-          rule.ip ? rule.ip : "*"
-        }`;
+        const portUsage = Object.entries(PORTS).find(
+          ([k, v]) => v === rule.port
+        );
+        const l = `${rule.port}${portUsage ? ` (${portUsage[0]}):` : ":\t"}\t ${
+          rule.action
+        }\t ${rule.type}\t ${rule.ip ? rule.ip : "*"}`;
 
         if (rule.action === "deny") {
           system.terminal.error(l, false);
