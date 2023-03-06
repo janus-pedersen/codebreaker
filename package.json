@@ -1,5 +1,6 @@
 {
   "name": "codebreaker",
+  "homepage": "https://JanuZz.github.io/codebreaker",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
