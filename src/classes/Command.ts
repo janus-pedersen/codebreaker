@@ -5,13 +5,19 @@ export class Command<Inputs extends CommandInputs = []> {
   description: string = "";
   aliases: string[] = [];
   inputs: Inputs = [] as unknown as Inputs;
+	category: string = "General";
   exec: CommandExec<Inputs> = () => {
     throw new Error("Command not implemented");
   };
 
   constructor(name: string) {
     this.name = name;
-  }
+	}
+	
+	setCategory(category: string) {
+		this.category = category;
+		return this;
+	}
 
   addInput<Type, I extends CommandInput<Type>>(input: I) {
     if (

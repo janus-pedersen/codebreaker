@@ -21,44 +21,8 @@ export default function TerminalComponent({
 
   useEffect(() => {
     (async () => {
-      console.log('TerminalComponent useEffect()');
-
       terminal.on('input', (i) => {
-        if (!i) {
-          terminal.basic('');
-          return;
-        }
-
-        if (terminal.shouldIgnore()) {
-          return;
-        }
-
-        terminal.info(i, true);
-
-        const cmdName = i.split(' ')[0];
-        const args = i.match(/(?:[^\s"]+|"[^"]*"|'[^']*')+/g);
-        if (args) {
-          args.shift();
-          args.forEach((a, i) => {
-            if (a.startsWith('"') && a.endsWith('"')) {
-              args[i] = a.slice(1, -1);
-            }
-          });
-        }
-
-        const command = terminal.system.commandManager.getCommand(cmdName);
-        if (!command) {
-          terminal.error(`Command not found: ${cmdName}`, false);
-          return;
-        }
-
-        try {
-          const parsedArgs = command?.parseArgs(args!);
-          console.log(args, parsedArgs);
-          (command?.exec as any)(terminal.system, ...(parsedArgs || []));
-        } catch (e) {
-          terminal.error((e as any).message, false);
-        }
+        terminal.system.commandManager.handleCommand(i, terminal.system);
 
         terminal.emit('render');
       });

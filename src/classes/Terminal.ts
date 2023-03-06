@@ -154,8 +154,8 @@ export class Terminal {
 		this.emit("render");
 	}
 
-  public updatePrompt() {
-		this.prompt = this.system.user.name + "@" + this.system.name + "$";
+	public updatePrompt() {
+		this.prompt = this.system.user.name + "@" + this.system.currentDirectory + " $";
   }
 
   public handleInput(input: string) {

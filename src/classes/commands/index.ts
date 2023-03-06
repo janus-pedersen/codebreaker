@@ -1,3 +1,7 @@
 import './echo'
 import './help'
 import './clear'
+import './ls'
+import './cd'
+import './mkdir'
+import './eval'
