@@ -1,5 +1,5 @@
 import { PORTS } from './utils/ports';
-import { PasswordSecurity } from "./classes/security/PasswordSecurity";
+import { PasswordSecurity } from "./classes/securities/PasswordSecurity";
 import { System } from "./classes/System";
 import { Game } from "./classes/Game";
 import { SystemUser } from "./classes/SystemUser";

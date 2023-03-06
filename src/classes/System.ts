@@ -7,7 +7,7 @@ import { SystemUser } from "./SystemUser";
 import { SystemDirectory } from "./SystemDirectory";
 import { randomBusinessName, randomIp, randomString } from "../utils/random";
 import { Network } from "./Network";
-import { PasswordSecurity } from "./security/PasswordSecurity";
+import { PasswordSecurity } from "./securities/PasswordSecurity";
 
 export class System {
   public terminal: Terminal = new Terminal(this);
