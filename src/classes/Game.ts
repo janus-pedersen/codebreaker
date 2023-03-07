@@ -1,12 +1,15 @@
 import { setupStory } from "../story";
+import { randomNumber } from "../utils/random";
+import { Bank } from "./Bank";
 import { Network } from "./Network";
 import { System } from "./System";
 
-export interface GameEvents { 
-  'systemChange': (system: System) => void;
+export interface GameEvents {
+  systemChange: (system: System) => void;
 }
 export class Game {
   public network: Network = new Network();
+  public bank: Bank = new Bank();
   public currentSystem: System | null = null;
   public homeSystem: System | null = null;
 
@@ -18,16 +21,26 @@ export class Game {
 
     this.homeSystem = new System("localhost");
     this.currentSystem = this.homeSystem;
-    this.network.addSystem(this.homeSystem);
+    const homeAcc = this.addSystem(this.homeSystem);
+    homeAcc.deposit(randomNumber(10, 100));
+    setupStory(this);
+  }
 
-    setupStory(this)
+  public addSystem(system: System) {
+    this.network.addSystem(system);
+    const bankAcc = this.bank.createAccount(system);
+
+    return bankAcc;
   }
 
   public on<T extends keyof GameEvents>(event: T, callback: GameEvents[T]) {
     this.listners.set(event, callback);
   }
 
-  public emit<T extends keyof GameEvents>(event: T, ...args: Parameters<GameEvents[T]>) {
+  public emit<T extends keyof GameEvents>(
+    event: T,
+    ...args: Parameters<GameEvents[T]>
+  ) {
     const callback = this.listners.get(event);
     if (callback) {
       callback(...args);
@@ -36,7 +49,7 @@ export class Game {
 
   public setCurrentSystem(system: System) {
     this.currentSystem = system;
-    this.emit('systemChange', system);
+    this.emit("systemChange", system);
   }
 
   public home() {

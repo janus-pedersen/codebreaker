@@ -85,7 +85,7 @@ export class Terminal {
   }
 
   public basic(message: string, withPrompt = true) {
-    this.pushColored("lightgray", message, withPrompt);
+    this.pushColored("LightGray", message, withPrompt);
   }
 
   public info(message: string, withPrompt = true) {

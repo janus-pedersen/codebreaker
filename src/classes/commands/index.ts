@@ -14,3 +14,5 @@ import "./scan";
 import "./user";
 import "./connect";
 import "./ping";
+import "./bal";
+import "./transfer";

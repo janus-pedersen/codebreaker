@@ -3,7 +3,7 @@ import { PasswordSecurity } from "./classes/securities/PasswordSecurity";
 import { System } from "./classes/System";
 import { Game } from "./classes/Game";
 import { SystemUser } from "./classes/SystemUser";
-import { randomPerson, randomString } from "./utils/random";
+import { randomNumber, randomPerson, randomString } from "./utils/random";
 import { SystemDirectory } from "./classes/SystemDirectory";
 import { SystemFile } from "./classes/SystemFile";
 import { FirewallRule } from "./classes/Firewall";
@@ -70,5 +70,6 @@ ${starbucksEmployee3.name}: ${employeePasswords[2]}
 	starbucks.firewall.addRule(new FirewallRule(PORTS.FTP, 'inbound', 'deny'))
 	starbucks.firewall.addRule(new FirewallRule(PORTS.FTP, 'outbound', 'deny'))
 
-	game.network.addSystem(starbucks);
+  const starbucksAcc = game.addSystem(starbucks);
+  starbucksAcc.deposit(randomNumber(1000, 10000))
 }
