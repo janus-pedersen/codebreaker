@@ -19,15 +19,16 @@ export class CommandManager {
 
   async handleCommand(i: string, system: System) {
     const terminal = system.terminal;
-    if (!i) {
-      terminal.basic("");
-      return;
-    }
-
+    
     if (terminal.shouldIgnore()) {
       return;
 		}
 		
+    if (!i) {
+      terminal.basic("");
+      return;
+    }
+    
 		terminal.commandHistory.push(i);
 
     terminal.info(i, true);
@@ -61,7 +62,6 @@ export class CommandManager {
       if (command.suspicion) {
         system.network?.game?.setSuspicion((s) => s + command.suspicion);
       }
-
     } catch (e) {
       terminal.error((e as any).message, false);
     }

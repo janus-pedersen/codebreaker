@@ -9,7 +9,7 @@ export interface TerminalEvents {
 }
 
 export class Terminal {
-  public readonly history: TerminalOutput[] = [];
+  public history: TerminalOutput[] = [];
   public commandHistory: string[] = [];
   public prompt: string = "";
   public readonly system: System;

@@ -12,9 +12,8 @@ function App() {
       forceUpdate();
     });
 
-    game.on('suspicionChange', () => {
+    game.on('suspicionChange', (sus, oldSus) => {
       forceUpdate();
-      console.log(game.suspicion);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

@@ -1,5 +1,6 @@
 import { setupStory } from "../story";
 import { randomNumber } from "../utils/random";
+import { wait } from "../utils/wait";
 import { Bank } from "./Bank";
 import { Network } from "./Network";
 import { Store } from "./Store";
@@ -7,7 +8,7 @@ import { System } from "./System";
 
 export interface GameEvents {
   systemChange: (system: System) => void;
-  suspicionChange: (suspicion: number) => void;
+  suspicionChange: (suspicion: number, old: number) => void;
 }
 export class Game {
   public network: Network = new Network();
@@ -54,8 +55,46 @@ export class Game {
   }
 
   public setSuspicion(calc: (suspicion: number) => number) {
+    const oldSuspicion = this.suspicion;
     this.suspicion = calc(this.suspicion);
-    this.emit("suspicionChange", this.suspicion);
+    this.emit("suspicionChange", this.suspicion, oldSuspicion);
+
+    const warnings = [50, 75, 90, 96, 99];
+    for (const warning of warnings) {
+      if (oldSuspicion < warning && this.suspicion >= warning) {
+        this.currentSystem?.terminal.error(
+          `Suspicion level is now ${this.suspicion}%, watch out!`,
+          false
+        );
+      }
+    }
+
+    if (this.suspicion >= 10) {
+      this.end();
+    }
+  }
+
+  public async end() {
+    this.currentSystem!.terminal.history = [];
+
+    const insults = [
+      "Get good",
+      "Scipt kiddie",
+      "Try harder",
+      "Git gud",
+      "Caught in 4k",
+      "Noob",
+      "You suck",
+      "You're bad",
+      "You're trash",
+    ];
+
+    this.currentSystem!.terminal.error(
+      insults[randomNumber(0, insults.length - 1)],
+      false
+    );
+		this.currentSystem!.terminal.basic("Refresh the page to try again", false);
+		this.currentSystem?.terminal.ignoreNext(Infinity)
   }
 
   public setCurrentSystem(system: System) {
