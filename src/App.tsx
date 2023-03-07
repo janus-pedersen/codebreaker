@@ -11,6 +11,11 @@ function App() {
     game.on('systemChange', (newSys) => {
       forceUpdate();
     });
+
+    game.on('suspicionChange', () => {
+      forceUpdate();
+      console.log(game.suspicion);
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -24,6 +29,14 @@ function App() {
 
   return (
     <div className='container'>
+      <div className='progress'>
+        <span
+          className='bar'
+          style={{
+            width: '100%',
+            clipPath: `polygon(0 0, ${game.suspicion}% 0, ${game.suspicion}% 100%, 0 100%)`,
+          }}></span>
+      </div>
       <TerminalComponent terminal={game.currentSystem?.terminal} />
     </div>
   );

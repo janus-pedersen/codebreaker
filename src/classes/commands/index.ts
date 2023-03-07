@@ -16,3 +16,4 @@ import "./connect";
 import "./ping";
 import "./bal";
 import "./transfer";
+import "./market";

@@ -20,7 +20,7 @@ export class Network {
       throw Error("System not found");
     }
 
-    if (!target.firewall.canAccess(from.ip, PORTS.SSH, "inbound")) {
+    if (!target.firewall.canAccess(from.ip, PORTS.CONNECT, "inbound")) {
       throw Error("Access denied");
     }
 
@@ -29,7 +29,7 @@ export class Network {
     }
 
     if (
-      !this.game?.currentSystem?.firewall.canAccess(to, PORTS.SSH, "outbound")
+      !this.game?.currentSystem?.firewall.canAccess(to, PORTS.CONNECT, "outbound")
     ) {
       throw Error("Access denied");
     }

@@ -20,6 +20,7 @@ code {
 
 .container {
   padding: 2rem;
+  padding-top: 3.5rem;
   position: absolute;
   top: 0;
   left: 0;
@@ -33,6 +34,37 @@ code {
 .container > .react-terminal-wrapper {
   box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
   border-radius: 0.5rem;
+}
+
+
+.progress {
+  position: absolute;
+  margin-bottom: 1rem;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 1.5rem;
+  background-color: #252a33;
+  overflow: hidden;
+}
+
+.progress::after {
+  content: "SUSPICION";
+  font-size: 0.8rem;
+  font-weight: 600;
+  opacity: 0.5;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #fff;
+}
+
+.progress > .bar {
+  display: block;
+  height: 100%;
+  transition: 1s ease-in-out;
+  background: linear-gradient(90deg, #e54848 0%, #b90e0e 100%);
 }
 
 .react-terminal-wrapper::before {

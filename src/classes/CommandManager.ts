@@ -57,6 +57,11 @@ export class CommandManager {
     try {
       const parsedArgs = command?.parseArgs(args!);
       await (command?.exec as any)(terminal.system, ...(parsedArgs || []));
+
+      if (command.suspicion) {
+        system.network?.game?.setSuspicion((s) => s + command.suspicion);
+      }
+
     } catch (e) {
       terminal.error((e as any).message, false);
     }

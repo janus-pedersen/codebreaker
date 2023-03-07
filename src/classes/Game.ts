@@ -2,18 +2,24 @@ import { setupStory } from "../story";
 import { randomNumber } from "../utils/random";
 import { Bank } from "./Bank";
 import { Network } from "./Network";
+import { Store } from "./Store";
 import { System } from "./System";
 
 export interface GameEvents {
   systemChange: (system: System) => void;
+  suspicionChange: (suspicion: number) => void;
 }
 export class Game {
   public network: Network = new Network();
   public bank: Bank = new Bank();
+  public market: Store[] = [];
+
   public currentSystem: System | null = null;
   public homeSystem: System | null = null;
 
-  private listners = new Map<string, Function>();
+  public suspicion = 0;
+
+  private listeners = new Map<string, Function>();
 
   public constructor() {
     this.network = new Network();
@@ -34,17 +40,22 @@ export class Game {
   }
 
   public on<T extends keyof GameEvents>(event: T, callback: GameEvents[T]) {
-    this.listners.set(event, callback);
+    this.listeners.set(event, callback);
   }
 
   public emit<T extends keyof GameEvents>(
     event: T,
     ...args: Parameters<GameEvents[T]>
   ) {
-    const callback = this.listners.get(event);
+    const callback = this.listeners.get(event);
     if (callback) {
       callback(...args);
     }
+  }
+
+  public setSuspicion(calc: (suspicion: number) => number) {
+    this.suspicion = calc(this.suspicion);
+    this.emit("suspicionChange", this.suspicion);
   }
 
   public setCurrentSystem(system: System) {
@@ -60,5 +71,13 @@ export class Game {
     const system = System.random();
     this.network.addSystem(system);
     return system;
+  }
+
+  public addStore(store: Store) {
+    this.market.push(store);
+  }
+
+  public getStore(name: string) {
+    return this.market.find((store) => store.storeName === name);
   }
 }

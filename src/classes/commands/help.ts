@@ -13,19 +13,22 @@ export const help = new Command("help")
     if (!command) {
       const commands = system.commandManager.commands
         .sort((a, b) => a.name.localeCompare(b.name))
-				.sort((a, b) => a.category.localeCompare(b.category));
-			let lastCategory = ''
-			for (const cmd of commands) {
-				if (cmd.category !== lastCategory) {
-					system.terminal.pushColored('white', cmd.category, false)
-					lastCategory = cmd.category
-				}
+        .sort((a, b) => a.category.localeCompare(b.category));
+      let lastCategory = "";
+      for (const cmd of commands) {
+        if (cmd.category !== lastCategory) {
+          system.terminal.pushColored("white", cmd.category, false);
+          lastCategory = cmd.category;
+        }
 
+        let usage = cmd.inputs
+          .map((i: CommandInput) => `[${i.name}${i.required ? "" : "?"}]`)
+          .join(" ");
 
         const name = createElement(
           "span",
           { style: { color: "white", opacity: 0.8 } },
-          "  " + cmd.name
+          "  " + cmd.name + " " + usage
         );
         const description = createElement(
           "span",
@@ -48,12 +51,15 @@ export const help = new Command("help")
         system.terminal.pushColored("red", "No command found with that name");
         return;
       }
+      let usage = cmd.inputs
+        .map((i: CommandInput) => `[${i.name}${i.required ? "" : "?"}]`)
+        .join(" ");
       system.terminal.pushStyled(
         {
           color: "white",
           textDecoration: "underline",
         },
-        cmd.name,
+        cmd.name + " " + usage,
         false
       );
       system.terminal.pushColored("teal", cmd.description, false);

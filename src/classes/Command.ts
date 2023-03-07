@@ -6,24 +6,31 @@ export class Command<Inputs extends CommandInputs = []> {
   aliases: string[] = [];
   inputs: Inputs = [] as unknown as Inputs;
   requiresRoot: boolean = false;
-	category: string = "General";
+  category: string = "General";
+  suspicion: number = 0;
+
   exec: CommandExec<Inputs> = () => {
     throw new Error("Command not implemented");
   };
 
   constructor(name: string) {
     this.name = name;
-	}
-	
+  }
+
+  setSuspicion(suspicion: number) {
+    this.suspicion = suspicion;
+    return this;
+  }
+
   setRoot(root: boolean = true) {
     this.requiresRoot = root;
     return this;
   }
 
-	setCategory(category: string) {
-		this.category = category;
-		return this;
-	}
+  setCategory(category: string) {
+    this.category = category;
+    return this;
+  }
 
   addInput<Type, I extends CommandInput<Type>>(input: I) {
     if (

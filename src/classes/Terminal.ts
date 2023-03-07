@@ -89,7 +89,7 @@ export class Terminal {
   }
 
   public info(message: string, withPrompt = true) {
-    this.pushColored("LightSeaGreen", message, withPrompt);
+    this.pushColored("DarkCyan", message, withPrompt);
   }
 
   public error(message: string, withPrompt = true) {
@@ -97,7 +97,7 @@ export class Terminal {
   }
 
   public success(message: string, withPrompt = true) {
-    this.pushColored("SeaGreen", message, withPrompt);
+    this.pushColored("ForestGreen", message, withPrompt);
   }
 
   public pushStyled(

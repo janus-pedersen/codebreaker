@@ -7,6 +7,7 @@ export const connect = new Command("connect")
   .setDescription("Connect to a system")
   .setCategory("Network")
   .setRoot()
+  .setSuspicion(5)
   .addInput(new StringInput("ip", "IP Address to connect to"))
   .onExec((system, ip) => {
     try {
