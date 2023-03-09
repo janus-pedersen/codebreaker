@@ -3,7 +3,7 @@ import { Command } from "./Command";
 
 export class CommandManager {
   static defaultCommands: Command[] = [];
-  commands = CommandManager.defaultCommands;
+  commands = [...CommandManager.defaultCommands];
 
   static addDefaultCommand(command: Command<any>) {
     CommandManager.defaultCommands.push(command);
@@ -19,17 +19,17 @@ export class CommandManager {
 
   async handleCommand(i: string, system: System) {
     const terminal = system.terminal;
-    
+
     if (terminal.shouldIgnore()) {
       return;
-		}
-		
+    }
+
     if (!i) {
       terminal.basic("");
       return;
     }
-    
-		terminal.commandHistory.push(i);
+
+    terminal.commandHistory.push(i);
 
     terminal.info(i, true);
 

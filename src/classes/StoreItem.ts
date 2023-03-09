@@ -7,7 +7,7 @@ export class StoreItem {
   public bought: boolean = false;
   public isOneTime: boolean = false;
 
-  private onBuy: (system: System) => void = () => {
+  private onBuy: (system: System) => void | Promise<void> = () => {
     throw Error("No onBuy function set");
   };
 
@@ -27,14 +27,14 @@ export class StoreItem {
     return this;
   }
 
-  public buy(system: System) {
+  public async buy(system: System) {
     if (this.bought) {
       throw Error("You already bought this item");
     }
 
     try {
       if (this.onBuy) {
-        this.onBuy(system);
+        await this.onBuy(system);
       }
       system.network?.game?.bank.getAccount(system)?.withdraw(this.price);
       system.terminal.success(

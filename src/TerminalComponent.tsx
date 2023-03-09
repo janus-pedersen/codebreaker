@@ -18,8 +18,6 @@ export default function TerminalComponent({
   useEffect(() => {
     const onInput = async (i: string) => {
       await terminal.system.commandManager.handleCommand(i, terminal.system);
-
-      terminal.emit('render');
     };
 
     const onRender = () => {

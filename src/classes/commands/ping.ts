@@ -3,7 +3,6 @@ import { Ip } from "../../types";
 import { Command } from "../Command";
 import { StringInput } from "../inputs/StringInput";
 import { randomNumber } from "../../utils/random";
-import { wait } from "../../utils/wait";
 import { CommandManager } from "../CommandManager";
 
 export const ping = new Command("ping")
@@ -15,7 +14,7 @@ export const ping = new Command("ping")
     const target = system.network?.fromIp(ip as Ip);
 
     const ping = randomNumber(1, 100);
-    await wait(ping * 10);
+    await system.terminal.wait(ping * 10);
     if (!target) throw Error("No system found with that IP");
     system.terminal.basic(`Pinging ${target.name} (${target.ip})...`, false);
     if (

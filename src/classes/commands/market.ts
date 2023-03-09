@@ -45,8 +45,9 @@ export const market = new Command("market")
     }
 
     system.terminal.info("Items: ", false);
+    const bal = system.network?.game?.bank.getAccount(system)?.balance;
 
-    store.items.forEach((item, index) => {
+    store.items.sort((a,b) => a.price - b.price).forEach((item, index) => {
       const indexDisplay = createElement(
         "span",
         { style: { color: "DarkCyan" } },
@@ -59,7 +60,7 @@ export const market = new Command("market")
         ": ",
         createElement(
           "span",
-          { style: { color: "LightSeaGreen" } },
+          { style: { color: item.price > bal! ? "Tomato" : "ForestGreen" } },
           "$" + item.price
         ),
         " ",
@@ -135,7 +136,7 @@ export const market = new Command("market")
       throw new Error("Not enough money");
     }
 
-    store.buyItem(system, item.name);
+    await store.buyItem(system, item.name);
   });
 
 CommandManager.addDefaultCommand(market);

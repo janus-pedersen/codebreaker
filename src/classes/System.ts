@@ -1,3 +1,4 @@
+import { SystemUpgrade } from './SystemUpgrade';
 import { Firewall } from "./Firewall";
 import { SystemFile } from "./SystemFile";
 import { CommandManager } from "./CommandManager";
@@ -8,6 +9,7 @@ import { SystemDirectory } from "./SystemDirectory";
 import { randomBusinessName, randomIp, randomString } from "../utils/random";
 import { Network } from "./Network";
 import { PasswordSecurity } from "./securities/PasswordSecurity";
+import { SystemCommandFile } from "./SystemCommandFile";
 
 export class System {
   public terminal: Terminal = new Terminal(this);
@@ -19,10 +21,12 @@ export class System {
   public ip = randomIp();
   public firewall = new Firewall();
   public network?: Network;
+  public suspicionPerSecond = 0;
+  public upgrades: SystemUpgrade[] = [];
 
   constructor(public name: string) {
-    this.commandManager = new CommandManager(); // just for TS
-    this.setCommandManager(new CommandManager());
+    this.commandManager = new CommandManager();
+    this.setCommandManager(this.commandManager);
 
     this.terminal.emit("setup");
 
@@ -32,12 +36,24 @@ export class System {
   static random() {
     const sys = new System(randomBusinessName());
     const guest = new SystemUser("guest");
-    const pass = randomString(8)
-    sys.user.addSecurity(new PasswordSecurity(pass))
+    const pass = randomString(8);
+    sys.user.addSecurity(new PasswordSecurity(pass));
     sys.users.push(guest);
     sys.setUser(guest);
-    sys.files.addFile(new SystemFile("root-password.txt", "Password: \n" + pass));
+    sys.files.addFile(
+      new SystemFile("root-password.txt", "Password: \n" + pass)
+    );
     return sys;
+  }
+
+  addUpgrade(upgrade: SystemUpgrade) {
+    this.upgrades.push(upgrade);
+    return this;
+  }
+
+  setSuspicionPerSecond(suspicionPerSecond: number) {
+    this.suspicionPerSecond = suspicionPerSecond;
+    return this;
   }
 
   setCommandManager(commandManager: CommandManager) {
@@ -49,10 +65,12 @@ export class System {
     if (!bin) {
       bin = new SystemDirectory("bin");
       this.files.addFile(bin);
+    } else {
+      bin.files = []
     }
 
     for (const command of commandManager.commands) {
-      bin.addFile(new SystemFile(command.name, command.description));
+      bin.addFile(new SystemCommandFile(command.name, command));
     }
   }
 
@@ -72,6 +90,7 @@ export class System {
   changeDirectory(path: string) {
     if (path === "/") {
       this.currentDirectory = "";
+      this.terminal.updatePrompt();
       return;
     }
 
@@ -81,6 +100,7 @@ export class System {
         .filter((part) => part !== "");
       pathParts.pop();
       this.currentDirectory = pathParts.join("/");
+      this.terminal.updatePrompt();
       return;
     }
 
@@ -88,6 +108,7 @@ export class System {
     const directory = this.getDirectory(path);
     if (!directory) return this.terminal.error("No such directory");
     this.currentDirectory = path;
+    this.terminal.updatePrompt();
   }
 
   getDirectory(path: string) {

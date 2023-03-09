@@ -1,5 +1,7 @@
 import { createElement } from "react";
 import { TerminalOutput } from "react-terminal-ui";
+import { randomString } from "../utils/random";
+import { wait } from "../utils/wait";
 import { System } from "./System";
 
 export interface TerminalEvents {
@@ -100,6 +102,79 @@ export class Terminal {
     this.pushColored("ForestGreen", message, withPrompt);
   }
 
+  public printTable(rows: string[], items: string[][]) {
+    const padding = 6;
+    const widths: number[] = [];
+    items.forEach((item) => {
+      item.forEach((value, index) => {
+        if (!widths[index]) {
+          widths[index] = 0;
+        }
+        widths[index] = Math.max(widths[index], value.length);
+      });
+    });
+
+    const table: string[] = [];
+    items.forEach((item) => {
+      const row: string[] = [];
+      item.forEach((value, index) => {
+        row.push(value.padEnd(widths[index] + padding));
+      });
+      table.push(row.join(""));
+    });
+
+    this.info(rows.map((row, index) => row.padEnd(widths[index] + padding)).join(""), false);
+    this.basic(table.join("\n"), false);
+  }
+
+  public async wait(ms: number): Promise<void> {
+    const time = new Date().getTime();
+
+    const timeMultiplier = this.system.upgrades.reduce(
+      (acc, upgrade) => acc * upgrade.timeMultiplier,
+      1
+    );
+
+    const targetTime = time + ms * timeMultiplier;
+    const barLength = 30;
+
+    const empty = " ";
+    const full = "#";
+
+    const key = randomString(20);
+
+    while (new Date().getTime() <= targetTime) {
+      const progress =
+        Math.round(
+          ((new Date().getTime() - time) / (ms * timeMultiplier)) * barLength
+        ) || 0;
+      const newLine = createElement(
+        "span",
+        { key: key},
+        "[" +
+          full.repeat(progress) +
+          empty.repeat(barLength - progress) +
+          "] (" +
+          Math.round((progress / barLength) * 100) +
+          "%",
+        timeMultiplier !== 1
+          ? createElement(
+              "span",
+              { style: { color: "DarkCyan" } },
+              ` x${timeMultiplier}`
+            )
+          : "",
+        ")"
+      );
+      this.history = this.history.filter((x) => x.key !== key);
+      this.pushHistory(newLine as any, false);
+
+      await wait(1);
+    }
+
+    this.history = this.history.filter((x) => x.key !== key);
+  }
+
   public pushStyled(
     style: React.CSSProperties,
     message: string,
@@ -109,14 +184,16 @@ export class Terminal {
       createElement(
         "span",
         { style },
-        withPrompt
-          ? createElement(
-              "span",
-              { style: { color: "#a2a2a2" } },
-              this.prompt + " "
-            )
-          : undefined,
-        message
+        [
+          withPrompt
+            ? createElement(
+                "span",
+                { style: { color: "#a2a2a2" } },
+                this.prompt + " "
+              )
+            : undefined,
+          message,
+        ].filter((x) => x)
       ) as any,
       withPrompt
     );
@@ -134,7 +211,7 @@ export class Terminal {
       typeof value === "string"
         ? createElement(
             "span",
-            undefined,
+            { key: this.history.length },
             withPrompt ? `${this.prompt} ${value}` : value
           )
         : value;

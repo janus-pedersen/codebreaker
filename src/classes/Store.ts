@@ -17,13 +17,15 @@ export class Store {
     return this;
   }
 
-  public buyItem(system: System, itemName: string) {
+  public async buyItem(system: System, itemName: string) {
     const item = this.items.find((item) => item.name === itemName);
     if (!item) {
       throw Error("Item not found");
     }
 
-    item.buy(system);
+    system.terminal.basic(`Buying ${item.name} for $${item.price} on system: ${system.name}`, false);
+
+    await item.buy(system);
 
     if (this.bankAcc) {
       this.bankAcc.deposit(item.price);

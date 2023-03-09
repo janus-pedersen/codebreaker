@@ -1,4 +1,4 @@
-import { CommandManager } from "./../CommandManager";
+import { CommandManager } from "../CommandManager";
 import { Command } from "../Command";
 import { createElement } from "react";
 

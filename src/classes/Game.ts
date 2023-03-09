@@ -1,6 +1,5 @@
 import { setupStory } from "../story";
 import { randomNumber } from "../utils/random";
-import { wait } from "../utils/wait";
 import { Bank } from "./Bank";
 import { Network } from "./Network";
 import { Store } from "./Store";
@@ -14,13 +13,14 @@ export class Game {
   public network: Network = new Network();
   public bank: Bank = new Bank();
   public market: Store[] = [];
+  public systemSuspicionInterval: NodeJS.Timeout | null = null;
 
   public currentSystem: System | null = null;
   public homeSystem: System | null = null;
 
   public suspicion = 0;
 
-  private listeners = new Map<string, Function>();
+  private listeners = new Map<string, Function[]>();
 
   public constructor() {
     this.network = new Network();
@@ -29,8 +29,18 @@ export class Game {
     this.homeSystem = new System("localhost");
     this.currentSystem = this.homeSystem;
     const homeAcc = this.addSystem(this.homeSystem);
-    homeAcc.deposit(randomNumber(10, 100));
+    homeAcc.deposit(9999999); // TODO: CHANGE!
     setupStory(this);
+
+    this.on("systemChange", () => {
+      if (this.systemSuspicionInterval) {
+        clearInterval(this.systemSuspicionInterval);
+      }
+			this.systemSuspicionInterval = setInterval(() => {
+				console.log("Suspicion: " + this.suspicion)
+        this.setSuspicion((suspicion) => suspicion + (this.currentSystem?.suspicionPerSecond || 0));
+      }, 1000);
+    });
   }
 
   public addSystem(system: System) {
@@ -41,7 +51,7 @@ export class Game {
   }
 
   public on<T extends keyof GameEvents>(event: T, callback: GameEvents[T]) {
-    this.listeners.set(event, callback);
+    this.listeners.set(event, [...(this.listeners.get(event) || []), callback]);
   }
 
   public emit<T extends keyof GameEvents>(
@@ -49,8 +59,10 @@ export class Game {
     ...args: Parameters<GameEvents[T]>
   ) {
     const callback = this.listeners.get(event);
-    if (callback) {
-      callback(...args);
+		if (callback) {
+			for (const cb of callback) {
+				cb(...args);
+			}
     }
   }
 
@@ -63,13 +75,13 @@ export class Game {
     for (const warning of warnings) {
       if (oldSuspicion < warning && this.suspicion >= warning) {
         this.currentSystem?.terminal.error(
-          `Suspicion level is now ${this.suspicion}%, watch out!`,
+          `Suspicion level is now ${Math.floor(this.suspicion)}%, watch out!`,
           false
         );
       }
     }
 
-    if (this.suspicion >= 10) {
+    if (this.suspicion >= 100) {
       this.end();
     }
   }
@@ -79,7 +91,7 @@ export class Game {
 
     const insults = [
       "Get good",
-      "Scipt kiddie",
+      "Script kiddie",
       "Try harder",
       "Git gud",
       "Caught in 4k",
@@ -89,12 +101,13 @@ export class Game {
       "You're trash",
     ];
 
-    this.currentSystem!.terminal.error(
-      insults[randomNumber(0, insults.length - 1)],
+		this.currentSystem!.terminal.error(
+			insults[randomNumber(0, insults.length - 1)] +
+			", you got caught by the FBI!",
       false
     );
-		this.currentSystem!.terminal.basic("Refresh the page to try again", false);
-		this.currentSystem?.terminal.ignoreNext(Infinity)
+    this.currentSystem!.terminal.basic("Refresh the page to try again", false);
+    this.currentSystem?.terminal.ignoreNext(Infinity);
   }
 
   public setCurrentSystem(system: System) {
