@@ -38,11 +38,11 @@ export class Network {
   }
 
   public fromIp(ip: Ip) {
-    return this.ips.get(ip);
+    return this.ips.get(ip.trim());
   }
 
   public fromHostname(hostname: string) {
-    return this.hostnames.get(hostname);
+    return this.hostnames.get(hostname.trim());
   }
 
   public get(n: string) {

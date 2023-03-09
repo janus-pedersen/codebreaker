@@ -1,44 +1,49 @@
 import { CommandManager } from "./../CommandManager";
 import { createElement } from "react";
 import { Command } from "./../Command";
+import { NumberInput } from "../inputs/NumberInput";
+import { Store } from "../Store";
 export const market = new Command("market")
   .setDescription("Opens the market")
   .setCategory("Economy")
+  .addInput(new NumberInput("store", "The store to visit", false))
   .setRoot()
-  .onExec(async (system) => {
+  .onExec(async (system, storeNum) => {
     const stores = system.network?.game?.market;
 
     if (!stores) {
       throw new Error("No market found");
     }
 
-    system.terminal.info("Stores: ", false);
+    let store: Store | undefined = stores[storeNum as number];
+    if (!store) {
+      system.terminal.info("Stores: ", false);
+      stores.forEach((store, index) => {
+        const indexDisplay = createElement(
+          "span",
+          { style: { color: "DarkCyan" } },
+          index
+        );
+        const nameDisplay = createElement(
+          "span",
+          {},
+          indexDisplay,
+          ": " + store.storeName
+        );
+        system.terminal.pushHistory(nameDisplay as any);
+      });
 
-    stores.forEach((store, index) => {
-      const indexDisplay = createElement(
-        "span",
-        { style: { color: "DarkCyan" } },
-        index
+      system.terminal.blank();
+
+      const storeName = await system.terminal.ask(
+        "Which store would you like to visit?"
       );
-      const nameDisplay = createElement(
-        "span",
-        {},
-        indexDisplay,
-        ": " + store.storeName
+      store = stores.find(
+        (store, i) =>
+          store.storeName.toLowerCase() === storeName.toLowerCase() ||
+          i === parseInt(storeName)
       );
-      system.terminal.pushHistory(nameDisplay as any);
-    });
-
-    system.terminal.blank();
-
-    const storeName = await system.terminal.ask(
-      "Which store would you like to visit?"
-    );
-    const store = stores.find(
-      (store, i) =>
-        store.storeName.toLowerCase() === storeName.toLowerCase() ||
-        i === parseInt(storeName)
-    );
+    }
 
     if (!store) {
       throw new Error("No store found with that name");
@@ -47,48 +52,50 @@ export const market = new Command("market")
     system.terminal.info("Items: ", false);
     const bal = system.network?.game?.bank.getAccount(system)?.balance;
 
-    store.items.sort((a,b) => a.price - b.price).forEach((item, index) => {
-      const indexDisplay = createElement(
-        "span",
-        { style: { color: "DarkCyan" } },
-        index
-      );
-      const nameDisplay = createElement(
-        "span",
-        {},
-        indexDisplay,
-        ": ",
-        createElement(
+    store.items
+      .sort((a, b) => a.price - b.price)
+      .forEach((item, index) => {
+        const indexDisplay = createElement(
           "span",
-          { style: { color: item.price > bal! ? "Tomato" : "ForestGreen" } },
-          "$" + item.price
-        ),
-        " ",
-        createElement(
+          { style: { color: "DarkCyan" } },
+          index
+        );
+        const nameDisplay = createElement(
           "span",
-          {
-            style: {
-              color: "white",
-              textDecoration: item.bought ? "line-through" : "",
+          {},
+          indexDisplay,
+          ": ",
+          createElement(
+            "span",
+            { style: { color: item.price > bal! ? "Tomato" : "ForestGreen" } },
+            "$" + item.price
+          ),
+          " ",
+          createElement(
+            "span",
+            {
+              style: {
+                color: "white",
+                textDecoration: item.bought ? "line-through" : "",
+              },
             },
-          },
-          item.name
-        ),
-        " - ",
-        createElement(
-          "span",
-          {
-            style: {
-              color: "LightGray",
-              opacity: 0.7,
-              textDecoration: item.bought ? "line-through" : "",
+            item.name
+          ),
+          " - ",
+          createElement(
+            "span",
+            {
+              style: {
+                color: "LightGray",
+                opacity: 0.7,
+                textDecoration: item.bought ? "line-through" : "",
+              },
             },
-          },
-          item.description
-        )
-      );
-      system.terminal.pushHistory(nameDisplay as any);
-    });
+            item.description
+          )
+        );
+        system.terminal.pushHistory(nameDisplay as any);
+      });
 
     system.terminal.blank();
 

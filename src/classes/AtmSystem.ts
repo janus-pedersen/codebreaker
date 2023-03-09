@@ -14,12 +14,12 @@ export class AtmSystem extends System {
       while (true) {
         if (this.skimmerInstalled) {
           try {
-            const amount = randomNumber(500, 500);
-            console.log("Stealing " + amount + " from " + this.name);
+            const amount = randomNumber(300, 1500);
             this.network?.game?.bank.getAccount(this)?.withdraw(amount);
             this.network?.game?.bank
-              .getAccount(this.network.game.homeSystem!)
-              ?.deposit(amount);
+            .getAccount(this.network.game.homeSystem!)
+            ?.deposit(amount);
+            this.network?.game?.notify(`Skimmer stole $${amount} from ${this.name}!`)
           } catch (e) {}
 				}
 				await wait(randomNumber(4000, 25000))

@@ -1,3 +1,5 @@
+import { MantineProvider } from '@mantine/core';
+import { Notifications } from '@mantine/notifications';
 import { useEffect, useState } from 'react';
 import { Game } from './classes/Game';
 import TerminalComponent from './TerminalComponent';
@@ -27,17 +29,20 @@ function App() {
   }
 
   return (
-    <div className='container'>
-      <div className='progress'>
-        <span
-          className='bar'
-          style={{
-            width: '100%',
-            clipPath: `polygon(0 0, ${game.suspicion}% 0, ${game.suspicion}% 100%, 0 100%)`,
-          }}></span>
+    <MantineProvider theme={{ colorScheme: 'dark' }} withNormalizeCSS>
+      <Notifications />
+      <div className='container'>
+        <div className='progress'>
+          <span
+            className='bar'
+            style={{
+              width: '100%',
+              clipPath: `polygon(0 0, ${game.suspicion}% 0, ${game.suspicion}% 100%, 0 100%)`,
+            }}></span>
+        </div>
+        <TerminalComponent terminal={game.currentSystem?.terminal} />
       </div>
-      <TerminalComponent terminal={game.currentSystem?.terminal} />
-    </div>
+    </MantineProvider>
   );
 }
 

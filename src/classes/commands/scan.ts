@@ -14,7 +14,6 @@ export const scan = new Command("scan")
     if (systems.length === 0) {
       throw Error("No systems found, are the correct ports open?");
     }
-
     const time = systems.length * 250;
     await system.terminal.wait(time)
 
@@ -25,6 +24,7 @@ export const scan = new Command("scan")
       rows.push([s.name, s.ip]);
     }
     system.terminal.printTable(["Hostname", "IP"], rows);
+
   });
 
 CommandManager.addDefaultCommand(scan);

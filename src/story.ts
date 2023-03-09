@@ -63,10 +63,10 @@ export function lawyerStore(game: Game) {
   lawyer.addItem(
     new StoreItem(
       "Legal Advice",
-      100,
-      "We'll give you a tip on how to avoid court (reduce suspicion by 1%)"
+      500,
+      "We'll give you a tip on how to avoid court (reduce suspicion by 5%)"
     ).setOnBuy(() => {
-      game.setSuspicion((s) => s - 1);
+      game.setSuspicion((s) => s - 5);
     })
   );
   lawyer.addItem(

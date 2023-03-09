@@ -1,3 +1,4 @@
+import { Game } from './Game';
 import { PORTS } from "./../utils/ports";
 import { System } from "./System";
 
@@ -26,6 +27,11 @@ export class Account {
 
 export class Bank {
   accounts: Account[] = [];
+  game: Game;
+
+  constructor(game: Game) {
+    this.game = game;
+  }
 
   createAccount(owner: System) {
     const account = new Account(owner);

@@ -1,3 +1,4 @@
+import { notifications } from "@mantine/notifications";
 import { setupStory } from "../story";
 import { randomNumber } from "../utils/random";
 import { Bank } from "./Bank";
@@ -11,7 +12,7 @@ export interface GameEvents {
 }
 export class Game {
   public network: Network = new Network();
-  public bank: Bank = new Bank();
+  public bank: Bank = new Bank(this);
   public market: Store[] = [];
   public systemSuspicionInterval: NodeJS.Timeout | null = null;
 
@@ -41,6 +42,31 @@ export class Game {
         this.setSuspicion((suspicion) => suspicion + (this.currentSystem?.suspicionPerSecond || 0));
       }, 1000);
     });
+  }
+
+  public notify(message: string, color: string = 'green') {
+    notifications.show({
+      message,
+      color,
+      styles: {
+        description: {
+          color: "LightGray",
+          fontFamily: "monospace",
+          fontSize: "1.1rem",
+          padding: "md"
+        },
+
+        root: {
+          margin: "2rem",
+          backgroundColor: "#16191f",
+          boxShadow: "5px 5px 10px 0 rgba(0, 0, 0, 0.5)",
+        },
+
+        closeButton: {
+          color: "white",
+        }
+      }
+    })
   }
 
   public addSystem(system: System) {
