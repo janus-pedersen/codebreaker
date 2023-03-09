@@ -184,7 +184,7 @@ export function setupStory(game: Game) {
   blackMarket(game);
   partsStore(game);
 
-  const atms = addAtms(game, randomNumber(4, 12));
+  addAtms(game, randomNumber(4, 12));
 
   game.addSystem(new System("Perker"));
   return game;
