@@ -15,7 +15,7 @@ export const ftp = new Command("ftp")
   .addInput(new StringInput("ip", "IP Address to send to", true))
   .addInput(new StringInput("file", "File to send", true))
   .onExec((system, ip, file) => {
-    const target = system.network?.fromIp(ip! as Ip);
+    const target = system.network?.get(ip! as Ip);
     if (!target) throw Error("No system found with that IP");
     const fileObj = system.getFile(file!);
     if (!fileObj) throw Error("No file found with that name");
@@ -25,6 +25,12 @@ export const ftp = new Command("ftp")
       !target.firewall.canAccess(system.ip, PORTS.FILE_TRANSFER, "inbound")
     ) {
       throw Error("Access denied, firewall blocked file transfer");
+    }
+
+    if (fileObj.owner?.name !== system.user.name) {
+      throw Error(
+        `You do not own this file. Only '${fileObj.owner?.name}' can send this file.`
+      );
     }
 
     target.files.addFile(fileObj);

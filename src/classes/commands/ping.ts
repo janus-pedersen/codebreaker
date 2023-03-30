@@ -11,7 +11,7 @@ export const ping = new Command("ping")
   .addInput(new StringInput("ip", "IP Address to ping", true))
   .setSuspicion(1)
   .onExec(async (system, ip) => {
-    const target = system.network?.fromIp(ip as Ip);
+    const target = system.network?.get(ip as Ip);
 
     const ping = randomNumber(1, 100);
     await system.terminal.wait(ping * 10);

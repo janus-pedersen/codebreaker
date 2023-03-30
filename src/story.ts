@@ -1,3 +1,5 @@
+import { PORTS } from "./utils/ports";
+import { SystemFile } from "./classes/SystemFile";
 import { SystemUpgrade } from "./classes/SystemUpgrade";
 import { advancedScan } from "./classes/commands/market/advanced-scan";
 import { Game } from "./classes/Game";
@@ -6,10 +8,41 @@ import { StoreItem } from "./classes/StoreItem";
 import { rooter } from "./classes/commands/market/rooter";
 import { System } from "./classes/System";
 import { AtmSystem } from "./classes/AtmSystem";
-import { randomNumber } from "./utils/random";
+import {
+  randomIp,
+  randomNumber,
+  randomPerson,
+  randomString,
+} from "./utils/random";
 import { Ip, Pin } from "./types";
 import { SystemUser } from "./classes/SystemUser";
 import { PinSecurity } from "./classes/security/PinSecurity";
+import { PasswordSecurity } from "./classes/securities/PasswordSecurity";
+import { SystemDirectory } from "./classes/SystemDirectory";
+import { ValuableFile } from "./classes/ValuableFile";
+import { FirewallRule } from "./classes/Firewall";
+
+function generateEmployeeUsers(amount: number): { name: string; pin: Pin }[] {
+  const employees = [];
+
+  for (let i = 0; i < amount; i++) {
+    employees.push({
+      name: randomPerson().firstName,
+      pin: randomNumber(1000, 9999).toString() as Pin,
+    });
+  }
+
+  return employees;
+}
+
+function lockFirewall(system: System, ports: number[]) {
+  for (const port of ports) {
+    const inbound = new FirewallRule(port, "inbound", "deny");
+    const outbound = new FirewallRule(port, "outbound", "deny");
+    system.firewall.addRule(inbound);
+    system.firewall.addRule(outbound);
+  }
+}
 
 export function blackMarket(game: Game) {
   const blackMarket = new Store("Black Market");
@@ -22,7 +55,7 @@ export function blackMarket(game: Game) {
     })
   );
   blackMarket.addItem(
-    new StoreItem("Advanced Scan", 1200, advancedScan.description).setOnBuy(
+    new StoreItem("Advanced Scan", 4900, advancedScan.description).setOnBuy(
       (system) => {
         if (system.commandManager.getCommand(advancedScan.name))
           throw Error("You already have this command!");
@@ -41,7 +74,7 @@ export function blackMarket(game: Game) {
       const ip = await system.terminal.ask(
         "Enter the IP of the ATM to install the skimmer on"
       );
-      const atm = system.network?.fromIp(ip as Ip);
+      const atm = system.network?.get(ip as Ip);
       if (!(atm instanceof AtmSystem)) {
         throw Error("No ATM found with that IP");
       }
@@ -91,6 +124,15 @@ export function lawyerStore(game: Game) {
         }, 5000);
       })
       .setOneTime()
+  );
+  lawyer.addItem(
+    new StoreItem(
+      "Presidential Pardon",
+      52000,
+      "We'll get you out of jail (reduce suspicion by 100%)"
+    ).setOnBuy(() => {
+      game.setSuspicion(() => 0);
+    })
   );
 
   game.addStore(lawyer);
@@ -167,16 +209,164 @@ export function addAtms(game: Game, amount: number) {
   for (let i = 0; i < amount; i++) {
     const atm = new AtmSystem(
       `${randomNumber(0, 9999).toString().padStart(4, "0")}`
-    ).setChance(Math.random() / 2);
-    const guest = new SystemUser('guest')
-    atm.user.addSecurity(new PinSecurity(randomNumber(1000, 9999).toString() as Pin))
-    atm.users.push(guest)
-    atm.setUser(guest)
+    )
+      .setChance(Math.random() / 2)
+      .setSuspicionPerSecond(0.25);
+    const guest = new SystemUser("guest");
+    atm.user.addSecurity(
+      new PinSecurity(randomNumber(1000, 9999).toString() as Pin)
+    );
+    atm.users.push(guest);
+    atm.setUser(guest);
     const acc = game.addSystem(atm);
     acc.deposit(randomNumber(200, 30000));
     atms.push(atm);
   }
   return atms;
+}
+
+export function starbucks(game: Game) {
+  const system = new System("Starbucks");
+
+  const employees = generateEmployeeUsers(randomNumber(2, 5));
+  const users = employees.map((e) => {
+    const user = new SystemUser(e.name);
+    user.addSecurity(new PasswordSecurity(e.pin));
+    return user;
+  });
+  const manager = new SystemUser("manager").addRoot();
+  manager.addSecurity(new PasswordSecurity("password"));
+  system.users.push(manager);
+  system.users.push(...users);
+
+  system.user = users[0];
+
+  const secrets = new SystemDirectory("secrets");
+
+  const customerInfo = new ValuableFile("customer-info.txt", 1000);
+  customerInfo.write(
+    [...Array(randomNumber(50, 150))]
+      .map(() => {
+        const name = randomPerson();
+        const favCoffe = [
+          "latte",
+          "cappuccino",
+          "espresso",
+          "mocha",
+          "americano",
+        ][randomNumber(0, 4)];
+        const totalSpent = randomNumber(100, 10000);
+        return `${name} (${favCoffe}): ${totalSpent}`;
+      })
+      .join("\n")
+  );
+  customerInfo.setOwner(manager);
+  secrets.addFile(customerInfo);
+
+  const notes = new SystemFile(
+    "notes.txt",
+    "In case you need to access the manager account, the password is just \"password\". But don't tell anyone! You're not supposed to know that."
+  );
+
+  system.files.addFile(secrets);
+  system.files.addFile(notes);
+
+  lockFirewall(system, [PORTS.BANK, PORTS.FILE_TRANSFER]);
+
+  system.setSuspicionPerSecond(0.9);
+
+  const bankAcc = game.addSystem(system);
+  bankAcc.deposit(randomNumber(1000, 10000));
+
+  return system;
+}
+
+export function starbucksCorp(game: Game, starbucks: System) {
+  const system = new System("Starbucks Corp.");
+  system.setSuspicionPerSecond(1.5);
+
+  lockFirewall(system, [
+    PORTS.BANK,
+    PORTS.CONNECT,
+    PORTS.FILE_TRANSFER,
+    PORTS.SCAN,
+  ]);
+  // Allow connections from Starbucks
+  system.firewall.addRule(
+    new FirewallRule(PORTS.SCAN, "inbound", "allow")
+      .setIp(starbucks.ip)
+      .setPriority(10)
+  );
+  system.firewall.addRule(
+    new FirewallRule(PORTS.SCAN, "outbound", "allow")
+      .setIp(starbucks.ip)
+      .setPriority(10)
+  );
+  system.firewall.addRule(
+    new FirewallRule(PORTS.CONNECT, "inbound", "allow")
+      .setIp(starbucks.ip)
+      .setPriority(10)
+  );
+  system.firewall.addRule(
+    new FirewallRule(PORTS.CONNECT, "outbound", "allow")
+      .setIp(starbucks.ip)
+      .setPriority(10)
+  );
+  system.firewall.addRule(
+    new FirewallRule(PORTS.FILE_TRANSFER, "inbound", "allow")
+      .setIp(starbucks.ip)
+      .setPriority(10)
+  );
+  system.firewall.addRule(
+    new FirewallRule(PORTS.BANK, "inbound", "allow")
+      .setIp(starbucks.ip)
+      .setPriority(10)
+  );
+  system.firewall.addRule(
+    new FirewallRule(PORTS.BANK, "outbound", "allow")
+      .setIp(starbucks.ip)
+      .setPriority(10)
+  );
+
+  const employees = generateEmployeeUsers(randomNumber(6, 12));
+  const users = employees.map((e) => {
+    const user = new SystemUser(e.name);
+    user.addSecurity(new PasswordSecurity(e.pin));
+    return user;
+  });
+  const itUser = new SystemUser("it admin").addRoot();
+  itUser.addSecurity(new PasswordSecurity(randomString(8)));
+  const manager = new SystemUser("manager").addRoot();
+  manager.addSecurity(new PasswordSecurity("password"));
+  system.users.push(manager);
+  system.users.push(itUser);
+  system.users.push(...users);
+
+  system.user = users[0];
+
+  const it = new SystemDirectory("it-files");
+  let userFile = new ValuableFile("users.txt", 15000).write(
+    employees.map((u) => `${u.name} (${u.pin})`).join("\n")
+  );
+  userFile.owner = itUser;
+  it.addFile(userFile);
+  it.addFile(
+    new SystemFile(
+      "system-reports.csv",
+      [...Array(randomNumber(50, 150))]
+        .map(
+          () =>
+            `${randomIp()}: ${randomNumber(0, 1000)},${randomNumber(
+              0,
+              1000
+            )},${randomNumber(0, 1000)}`
+        )
+        .join("\n")
+    )
+  );  
+
+  const bankAcc = game.addSystem(system);
+  bankAcc.deposit(randomNumber(10000, 100000));
 }
 
 export function setupStory(game: Game) {
@@ -186,6 +376,8 @@ export function setupStory(game: Game) {
 
   addAtms(game, randomNumber(4, 12));
 
-  game.addSystem(new System("Perker"));
+  const s = starbucks(game);
+  starbucksCorp(game, s);
+
   return game;
 }

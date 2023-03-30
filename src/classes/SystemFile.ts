@@ -1,7 +1,7 @@
 import { SystemUser } from "./SystemUser";
 export class SystemFile {
   private content: string = "";
-  private owner?: SystemUser;
+  public owner?: SystemUser;
   constructor(public name: string, content?: string) {
     if (content) this.content = content;
   }
@@ -21,5 +21,6 @@ export class SystemFile {
 
   write(content: string) {
     this.content = content;
+    return this
   }
 }

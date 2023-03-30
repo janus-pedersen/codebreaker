@@ -13,7 +13,7 @@ export const transfer = new Command("transfer")
   .setCategory("Economy")
   .setRoot()
   .onExec((system, ip, amount) => {
-    const targetSystem = system.network?.fromIp(ip as Ip);
+    const targetSystem = system.network?.get(ip as Ip);
 
     if (!targetSystem) {
       throw new Error("Invalid IP");

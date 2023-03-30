@@ -30,13 +30,25 @@ export class Firewall {
   }
 
   public canAccess(ip: Ip, port: number, type: FirewallRuleType) {
-    const rule = this.rules.find(
-      (r) => (r.port === "*" || r.port === port) && r.type === type
-    );
-    if (!rule) return true;
-    if (rule.action === "deny") return false;
-    if (!rule.ip || rule.ip === "*") return true;
-    return rule.ip === ip;
+    let lowestPriority = -Infinity;
+    let lowestPriorityRule: FirewallRule | undefined = undefined;
+
+    for (const rule of this.rules) {
+      if (rule.port === port && rule.type === type) {
+        if (rule.ip === ip || rule.ip === "*") {
+          if (rule.priority > lowestPriority) {
+            lowestPriority = rule.priority;
+            lowestPriorityRule = rule;
+          }
+        }
+      }
+    }
+
+    if (lowestPriorityRule) {
+      return lowestPriorityRule.action === "allow";
+    } else {
+      return true;
+    }
   }
 }
 
@@ -60,9 +72,11 @@ export class FirewallRule {
 
   setPriority(priority: number) {
     this.priority = priority;
+    return this
   }
 
   setIp(ip: Ip | "*") {
     this.ip = ip;
+    return this;
   }
 }

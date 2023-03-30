@@ -2,6 +2,7 @@ import { notifications } from "@mantine/notifications";
 import { setupStory } from "../story";
 import { randomNumber } from "../utils/random";
 import { Bank } from "./Bank";
+import { sell } from "./commands/sell";
 import { Network } from "./Network";
 import { Store } from "./Store";
 import { System } from "./System";
@@ -28,6 +29,7 @@ export class Game {
     this.network.game = this;
 
     this.homeSystem = new System("localhost");
+    this.homeSystem.commandManager.addCommand(sell as any)
     this.currentSystem = this.homeSystem;
     const homeAcc = this.addSystem(this.homeSystem);
     homeAcc.deposit(9999999); // TODO: CHANGE!
@@ -71,9 +73,7 @@ export class Game {
 
   public addSystem(system: System) {
     this.network.addSystem(system);
-    const bankAcc = this.bank.createAccount(system);
-
-    return bankAcc;
+    return this.bank.createAccount(system);
   }
 
   public on<T extends keyof GameEvents>(event: T, callback: GameEvents[T]) {
