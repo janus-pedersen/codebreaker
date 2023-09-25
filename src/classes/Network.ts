@@ -14,6 +14,11 @@ export class Network {
     system.network = this;
   }
 
+  /** 
+   * Connect from one system to another, checks firewall access
+   * @param from the system to connect from
+   * @param to the system to connect to
+   */
   public connect(from: System, to: Ip) {
     const target = this.fromIp(to);
     if (!target) {
@@ -29,7 +34,11 @@ export class Network {
     }
 
     if (
-      !this.game?.currentSystem?.firewall.canAccess(to, PORTS.CONNECT, "outbound")
+      !this.game?.currentSystem?.firewall.canAccess(
+        to,
+        PORTS.CONNECT,
+        "outbound"
+      )
     ) {
       throw Error("Access denied");
     }

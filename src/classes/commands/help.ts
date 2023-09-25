@@ -11,6 +11,10 @@ export const help = new Command("help")
   .addInput(new StringInput("command", "The command to get help for", false))
   .onExec((system, command) => {
     if (!command) {
+
+      system.terminal.pushColored("white", "To get started, use the `cat tutorial.md` command \n", false);
+      system.terminal.blank();
+
       const commands = system.commandManager.commands
         .sort((a, b) => a.name.localeCompare(b.name))
         .sort((a, b) => a.category.localeCompare(b.category));

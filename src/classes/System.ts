@@ -1,4 +1,4 @@
-import { SystemUpgrade } from './SystemUpgrade';
+import { SystemUpgrade } from "./SystemUpgrade";
 import { Firewall } from "./Firewall";
 import { SystemFile } from "./SystemFile";
 import { CommandManager } from "./CommandManager";
@@ -11,6 +11,9 @@ import { Network } from "./Network";
 import { PasswordSecurity } from "./securities/PasswordSecurity";
 import { SystemCommandFile } from "./SystemCommandFile";
 
+/**
+ * A system is a computer that the player can connect to and hack into
+ */
 export class System {
   public terminal: Terminal = new Terminal(this);
   public commandManager: CommandManager;
@@ -33,6 +36,9 @@ export class System {
     this.files.addFile(new SystemFile("README.md", `# ${name}`));
   }
 
+  /**
+   * Generates a random system that can be used for buffering the story
+   */
   static random() {
     const sys = new System(randomBusinessName());
     const guest = new SystemUser("guest");
@@ -51,6 +57,9 @@ export class System {
     return this;
   }
 
+  /**
+   * Sets the suspicion per second, this is the amount of suspicion that is added to the system every second when the player is connected to it
+   */
   setSuspicionPerSecond(suspicionPerSecond: number) {
     this.suspicionPerSecond = suspicionPerSecond;
     return this;
@@ -66,7 +75,7 @@ export class System {
       bin = new SystemDirectory("bin");
       this.files.addFile(bin);
     } else {
-      bin.files = []
+      bin.files = [];
     }
 
     for (const command of commandManager.commands) {
@@ -74,6 +83,9 @@ export class System {
     }
   }
 
+  /**
+   * Changes the user, and attempts to login to that user if the password is correct
+   */
   async setUser(user: SystemUser) {
     if (user.name === this.user.name) {
       throw Error("Already logged in as that user");
@@ -87,6 +99,7 @@ export class System {
     }
   }
 
+  /** Backend for the `cd` command */
   changeDirectory(path: string) {
     if (path === "/") {
       this.currentDirectory = "";

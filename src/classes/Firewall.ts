@@ -4,6 +4,9 @@ type FirewallRuleType = "inbound" | "outbound";
 export class Firewall {
   rules: FirewallRule[] = [];
 
+  /**
+   * Add a rule to the firewall, throws an error if the rule conflicts with an existing rule
+   */
   public addRule(rule: FirewallRule) {
     // Check for conflicting rules
     for (const r of this.rules) {
@@ -29,6 +32,14 @@ export class Firewall {
     return this.rules;
   }
 
+  /**
+   * Check if a system can access a port
+   * @param ip the ip of the system 
+   * @param port the port to check
+   * @param type the type of connection, inbound or outbound
+   * @returns true if the system can access the port, false if not
+   * @throws an error if the system cannot access the port
+   */
   public canAccess(ip: Ip, port: number, type: FirewallRuleType) {
     let lowestPriority = -Infinity;
     let lowestPriorityRule: FirewallRule | undefined = undefined;

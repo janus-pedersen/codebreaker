@@ -1,14 +1,20 @@
 import { CommandExec, CommandExecArgs, CommandInputs } from "./../types";
 import { CommandInput } from "./inputs";
 export class Command<Inputs extends CommandInputs = []> {
+  /** The name used for the command, the one you input to execute it */
   name: string;
   description: string = "";
+
+  /** Alternate names that can also be used */
   aliases: string[] = [];
+
+  /** Inputs that the command takes, such as an ip address or the amount of money to transfer */
   inputs: Inputs = [] as unknown as Inputs;
   requiresRoot: boolean = false;
   category: string = "General";
   suspicion: number = 0;
 
+  /** The funciton to execute when the command is called */
   exec: CommandExec<Inputs> = () => {
     throw new Error("Command not implemented");
   };
@@ -32,6 +38,7 @@ export class Command<Inputs extends CommandInputs = []> {
     return this;
   }
 
+  /** Adds an input */
   addInput<Type, I extends CommandInput<Type>>(input: I) {
     if (
       input.required &&
@@ -60,6 +67,7 @@ export class Command<Inputs extends CommandInputs = []> {
     return this;
   }
 
+  /** Parse teh arguments and see if they match the required arguments */
   parseArgs(args: RegExpMatchArray): CommandExecArgs<Inputs> {
     let parsed: CommandExecArgs<Inputs> = [] as any;
     args.forEach((arg, i) => {

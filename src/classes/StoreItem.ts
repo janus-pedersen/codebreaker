@@ -27,6 +27,10 @@ export class StoreItem {
     return this;
   }
 
+  /**
+   * Buys the item and does the onBuy function
+   * @param system the system to buy the item on
+   */
   public async buy(system: System) {
     if (this.bought) {
       throw Error("You already bought this item");

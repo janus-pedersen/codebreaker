@@ -10,6 +10,9 @@ export interface TerminalEvents {
   render: () => void;
 }
 
+/**
+ * Each system has a terminal that can be used to interact with the system, such as executing commands
+ */
 export class Terminal {
   public history: TerminalOutput[] = [];
   public commandHistory: string[] = [];

@@ -14,6 +14,7 @@ export class AtmSystem extends System {
       while (true) {
         if (this.skimmerInstalled) {
           try {
+            if(Math.random() > this.chanceOfSkimmer) return;
             const amount = randomNumber(300, 1500);
             this.network?.game?.bank.getAccount(this)?.withdraw(amount);
             this.network?.game?.bank
@@ -27,6 +28,11 @@ export class AtmSystem extends System {
     })();
   }
 
+  /**
+   * Set the profitability of atm skimmers
+   * @param chance the change that the user receives cash
+   * @returns 
+   */
   public setChance(chance: number) {
     this.chanceOfSkimmer = chance;
     return this;

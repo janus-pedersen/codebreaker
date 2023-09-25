@@ -1,5 +1,5 @@
 import { Terminal } from './classes/Terminal';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
   ColorMode,
   TerminalOutput,
@@ -19,6 +19,7 @@ export default function TerminalComponent({
     const onInput = async (i: string) => {
       await terminal.system.commandManager.handleCommand(i, terminal.system);
     };
+
 
     const onRender = () => {
       forceUpdate();

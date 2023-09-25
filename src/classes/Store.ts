@@ -17,6 +17,11 @@ export class Store {
     return this;
   }
 
+  /**
+   * Buys an item and subtracts the money from the bank account
+   * @param system the system to link the item to
+   * @param itemName item to buy
+   */
   public async buyItem(system: System, itemName: string) {
     const item = this.items.find((item) => item.name === itemName);
     if (!item) {

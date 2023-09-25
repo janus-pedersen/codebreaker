@@ -210,7 +210,7 @@ export function addAtms(game: Game, amount: number) {
     const atm = new AtmSystem(
       `${randomNumber(0, 9999).toString().padStart(4, "0")}`
     )
-      .setChance(Math.random() / 2)
+      .setChance(Math.random() / 2 + 0.5)
       .setSuspicionPerSecond(0.25);
     const guest = new SystemUser("guest");
     atm.user.addSecurity(
@@ -236,6 +236,7 @@ export function starbucks(game: Game) {
   });
   const manager = new SystemUser("manager").addRoot();
   manager.addSecurity(new PasswordSecurity("password"));
+  system.users = [];
   system.users.push(manager);
   system.users.push(...users);
 
@@ -374,7 +375,7 @@ export function setupStory(game: Game) {
   blackMarket(game);
   partsStore(game);
 
-  addAtms(game, randomNumber(4, 12));
+  addAtms(game, randomNumber(1, 4));
 
   const s = starbucks(game);
   starbucksCorp(game, s);
