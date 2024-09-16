@@ -1,3 +1,6 @@
+> [!CAUTION]
+> Currently the only way to play the game is to run it locally, i dont have the time to figure out what is wrong with the gh-pages deployment
+
 # Codebreaker
 
 Hack your way into other computers in a fun (semi) realistic simulation of the real world network of computers
