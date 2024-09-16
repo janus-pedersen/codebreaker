@@ -1,5 +1,5 @@
 import { Terminal } from './classes/Terminal';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import {
   ColorMode,
   TerminalOutput,
